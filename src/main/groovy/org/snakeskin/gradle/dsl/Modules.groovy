@@ -16,8 +16,13 @@ import org.snakeskin.gradle.Flags
  * @version 6/24/18
  */
 class Modules {
-    def compileDeps = new LinkedHashSet<String>(Collections.singleton(Constants.SNAKESKIN_CORE))
-    def kaptDeps = new LinkedHashSet<String>(Collections.singleton(Constants.SNAKESKIN_CORE))
+    def compileDeps = new LinkedHashSet<String>()
+    def kaptDeps = new LinkedHashSet<String>()
+
+    void core() {
+        compileDeps.add(Constants.SNAKESKIN_CORE)
+        kaptDeps.add(Constants.SNAKESKIN_CORE)
+    }
 
     void frc() {
         compileDeps.add(Constants.SNAKESKIN_FRC)
