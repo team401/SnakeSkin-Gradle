@@ -26,7 +26,8 @@ class SnakeskinDependencyComponent {
     void beforeEvaluate(Project project) {
         project.extensions.create("snakeskin", SnakeskinExtension, project.objects) //Create the 'snakeskin' DSL block
 
-        if (project.plugins.hasPlugin("kotlin")) {
+        project.apply {}
+        if (project.plugins.hasPlugin("org.jetbrains.kotlin.jvm")) {
             project.plugins.apply("kotlin-kapt") //If the project has kotlin, we need to apply kotlin-kapt to do annotation processing
         }
     }
