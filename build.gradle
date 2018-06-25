@@ -1,0 +1,37 @@
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'java-gradle-plugin'
+}
+
+group 'org.snakeskin'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+project.description     = 'Plugin for managing SnakeSkin dependencies in a Gradle project'
+project.group           = 'org.snakeskin'
+project.version         = '1.0'
+
+project.ext.name        = 'snakeskin-gradle'
+project.ext.pluginId    = 'org.snakeskin.snakeskin-gradle'
+project.ext.scm         = 'scm:git@github.com:team401/snakeskin-gradle.git'
+project.ext.url         = 'https://github.com/team401/snakeskin-gradle'
+
+
+gradlePlugin {
+    plugins {
+        snakeskinPlugin {
+            id = project.pluginId
+            implementationClass = 'org.snakeskin.gradle.SnakeskinPlugin'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+}
