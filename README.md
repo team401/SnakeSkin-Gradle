@@ -1,2 +1,13 @@
 # SnakeSkin-Gradle
-Gradle plugin for configuring SnakeSkin projects
+SnakeSkin is designed to be used with the Gradle build system (default option for 2019+).  As such, we've created a gradle plugin to make setting up your project as simple as possible.  SnakeSkin has some relatively complex build environment requirements that won't be detailed here, so the plugin was designed to take care of all of this for you.
+
+Starting with version 2.0, SnakeSkin uses annotation processing to identify and index certain annotated methods at compile time, to make calling them at runtime as fast as possible (SnakeSkin previously used classpath scanning, which takes around 7 seconds on a typical SnakeSkin project on a RoboRIO).  The SnakeSkin annotation processor is loaded at compile time, looks for these methods, generates wrapper classes that extend a common interface to call them, and writes the fully qualified class names of these wrappers to an index file, which ultimately needs to be stored in the output jar.
+
+The first hurdle is that Kotlin doesn't support annotation proecessing out of the box.  Instead, a special Gradle plugin called kotlin-kapt is used.  The plugin itself comes with the Kotlin Gradle plugin jar, but is not applied by default.  The SnakeSkin plugin, upon being applied, will check if Kotlin is applied to the project, and if so it will apply kotlin-kapt.  This is why the SnakeSkin plugin needs to be applied after Kotlin.
+
+The second hurdle is that by default the compiler will not merge the class index files from multiple jars.  For example, if a jar dependency had an index file, and your code also had an index file, only one would persist into the output jar.  This wouldn't normally be an issue, however both SnakeSkin-FRC and SnakeSkin-CTRE have index files as well for running their own initialization tasks.  If the files weren't merged, bad things could happen at runtime, with either your code or SnakeSkin itself not properly initializing.  To solve this, the SnakeSkin Gradle plugin scans the loaded dependencies and your code's build directory for index files, and creates one big index file in the output jar.
+
+
+Finally, SnakeSkin-FRC provides its own Robot main class, so the jar configuration in gradle should be identical for any team using SnakeSkin.  Therefore it would be convenient if the user didn't have to create this configuration.
+
+All of these factors combined would create a very lengthy and complex build.gradle file that would be very difficult to follow for many teams.  For this reason, we created the Gradle plugin to hide this complex configuration behind the scenes and provide a simple interface for the end users. Most of the lines in this repository would end up in the build.gradle of every project using SnakeSkin if this plugin didn't exist.
