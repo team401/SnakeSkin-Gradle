@@ -1,6 +1,8 @@
 package org.snakeskin.gradle.component
 
 import org.gradle.api.Project
+import org.gradle.api.ProjectEvaluationListener
+import org.gradle.api.ProjectState
 import org.gradle.api.artifacts.DependencyResolutionListener
 import org.gradle.api.artifacts.ResolvableDependencies
 import org.snakeskin.gradle.Constants
@@ -24,21 +26,35 @@ class SnakeskinDependencyComponent {
     }
 
     void beforeEvaluate(Project project) {
-        project.extensions.create("snakeskin", SnakeskinExtension, project.objects) //Create the 'snakeskin' DSL block
+        def extension = project.extensions.create("snakeskin", SnakeskinExtension, project.objects) //Create the 'snakeskin' DSL block
 
-        project.apply {}
-        if (project.plugins.hasPlugin("org.jetbrains.kotlin.jvm")) {
-            project.plugins.apply("kotlin-kapt") //If the project has kotlin, we need to apply kotlin-kapt to do annotation processing
-        }
+        try {
+            project.plugins.apply("kotlin-kapt")
+        } catch (ignored) {}
+
+        project.gradle.addProjectEvaluationListener(new ProjectEvaluationListener() {
+            @Override
+            void beforeEvaluate(Project projectIn) {
+
+            }
+
+            @Override
+            void afterEvaluate(Project projectIn, ProjectState state) {
+                def newExtension = projectIn.extensions.getByType(SnakeskinExtension)
+
+                try {
+                    newExtension.modules.kaptDeps.each {
+                        println("ADDING KAPT DEP $it")
+                        projectIn.configurations.kapt.dependencies.add(projectIn.dependencies.create(snakeskinDep(it, extension.version)))
+                    }
+                } catch (ignored) {}
+            }
+        })
     }
 
     void afterEvaluate(Project project) {
         def extension = project.extensions.getByType(SnakeskinExtension)
 
-        boolean hasKapt = project.plugins.hasPlugin('kotlin-kapt')
-
-        def compileDeps = project.configurations.compile.dependencies
-        def kaptDeps = hasKapt ? project.configurations.kapt.dependencies : null
         def repositories = project.repositories
 
         project.gradle.addListener(new DependencyResolutionListener() {
@@ -51,16 +67,8 @@ class SnakeskinDependencyComponent {
                 })
 
                 extension.modules.compileDeps.each { //Iterate the compile deps specified by our DSL extension
-                    compileDeps.add(project.dependencies.create(snakeskinDep(it, extension.version)))
+                    project.configurations.compile.dependencies.add(project.dependencies.create(snakeskinDep(it, extension.version)))
                     //Add the dependency to the 'compile' configuration
-                }
-
-                if (hasKapt) { //If we have kapt support
-                    extension.modules.kaptDeps.each {
-                        //Iterate the kapt deps specified by our DSL extension (should only be Core, not accessible to the DSL)
-                        kaptDeps.add(project.dependencies.create(snakeskinDep(it, extension.version)))
-                        //Add the dependency to the 'kapt' configuration
-                    }
                 }
 
                 project.gradle.removeListener(this) //Remove ourselves from the listeners since we're done
