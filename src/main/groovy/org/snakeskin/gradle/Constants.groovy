@@ -22,6 +22,6 @@ class Constants {
     static final String INDEX_PATH = "META-INF/services/org.snakeskin.compiler.AnnotatedRunnable"
     static final String INDEX_MATCHER = "**/" + INDEX_PATH
 
-    static final String FRC_MAIN_CLASS = "edu.wpi.first.wpilibj.RobotBase"
-    static final String FRC_ROBOT_CLASS = "org.snakeskin.Robot"
+    static final String FRC_MAIN_CLASS = "org.snakeskin.SnakeskinMain" //Updated for WPILib 2019+
+    static final String FRC_ROBOT_CLASS = "org.snakeskin.Robot" //No longer required
 }

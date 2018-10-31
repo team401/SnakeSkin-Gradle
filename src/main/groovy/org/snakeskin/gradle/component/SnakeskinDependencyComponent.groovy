@@ -44,7 +44,7 @@ class SnakeskinDependencyComponent {
 
                 try {
                     newExtension.modules.kaptDeps.each {
-                        println("ADDING KAPT DEP $it")
+                        println("[SnakeSkin] Successfully registered annotation processor")
                         projectIn.configurations.kapt.dependencies.add(projectIn.dependencies.create(snakeskinDep(it, extension.version)))
                     }
                 } catch (ignored) {}
