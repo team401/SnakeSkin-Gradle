@@ -32,4 +32,8 @@ class Modules {
     void ctre() {
         compileDeps.add(Constants.SNAKESKIN_CTRE)
     }
+
+    void rev() {
+        compileDeps.add(Constants.SNAKESKIN_REV)
+    }
 }
